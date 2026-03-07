@@ -7,7 +7,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException, NoSuchElementException
+from selenium.common.exceptions import TimeoutException
 from webdriver_manager.chrome import ChromeDriverManager
 
 TELEGRAM_TOKEN = "8644017899:AAHlIz_JNgZNlvUo3nu3wI3YQWsp06aA8kw"
@@ -20,20 +20,23 @@ TRAMITE_GROUP = "tramiteGrupo[1]"
 TRAMITE_VALUE = "4112"
 URL = "https://icp.administracionelectronica.gob.es/icpco/index"
 
+
 def send_telegram(msg):
-    print(f"Sending: {msg}")
+    print("Sending: " + msg)
     for chat_id in CHAT_IDS:
         try:
-            url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
+            url = "https://api.telegram.org/bot" + TELEGRAM_TOKEN + "/sendMessage"
             r = requests.post(url, data={"chat_id": chat_id, "text": msg}, timeout=10)
-            print(f"chat_id {chat_id}: {r.status_code}")
+            print("chat_id " + chat_id + ": " + str(r.status_code))
         except Exception as e:
-            print(f"Error: {e}")
+            print("Error: " + str(e))
+
 
 def js_click(driver, element):
     driver.execute_script("arguments[0].scrollIntoView(true);", element)
     time.sleep(0.3)
     driver.execute_script("arguments[0].click();", element)
+
 
 def create_driver():
     options = Options()
@@ -60,6 +63,7 @@ def create_driver():
     )
     return driver
 
+
 def accept_cookies(driver):
     try:
         cookie = WebDriverWait(driver, 5).until(
@@ -69,6 +73,7 @@ def accept_cookies(driver):
         time.sleep(1)
     except TimeoutException:
         pass
+
 
 def open_and_select_province(driver):
     print("Step 1: Province")
@@ -81,6 +86,7 @@ def open_and_select_province(driver):
     js_click(driver, driver.find_element(By.ID, "btnAceptar"))
     time.sleep(4)
 
+
 def select_office_and_tramite(driver):
     print("Step 2: Office and tramite")
     wait = WebDriverWait(driver, 20)
@@ -91,6 +97,7 @@ def select_office_and_tramite(driver):
     js_click(driver, driver.find_element(By.ID, "btnAceptar"))
     time.sleep(4)
 
+
 def click_enter(driver):
     print("Step 3: Entrar")
     wait = WebDriverWait(driver, 20)
@@ -99,6 +106,7 @@ def click_enter(driver):
         time.sleep(3)
     except TimeoutException:
         print("btnEntrar not found")
+
 
 def fill_user_data(driver):
     print("Step 4: NIE and name")
@@ -114,6 +122,7 @@ def fill_user_data(driver):
     js_click(driver, driver.find_element(By.ID, "btnEnviar"))
     time.sleep(4)
 
+
 def solicitar_cita(driver):
     print("Step 5: Solicitar Cita")
     wait = WebDriverWait(driver, 20)
@@ -123,16 +132,18 @@ def solicitar_cita(driver):
     except TimeoutException:
         print("btnEnviar not found")
 
+
 def check_result(driver):
     page = driver.page_source.lower()
     if "no hay citas disponibles" in page:
         return False
-    elif any(x in page for x in ["seleccione fecha", "elija fecha", "seleccionar fecha", "calendario"]):
+    elif "seleccione fecha" in page or "elija fecha" in page or "calendario" in page:
         return True
     return None
 
+
 def main():
-    send_telegram("🔄 Перевірка citas...")
+    send_telegram("Perevirnka citas...")
     driver = create_driver()
     try:
         open_and_select_province(driver)
@@ -142,25 +153,17 @@ def main():
         solicitar_cita(driver)
         result = check_result(driver)
         if result is False:
-            send_telegram("❌ No citas disponibles")
+            send_telegram("No citas disponibles")
         elif result is True:
-            send_telegram("🚨 CITAS AVAILABLE! Book now! 🚨")
+            send_telegram("CITAS AVAILABLE! Book now!")
         else:
-            send_telegram("⚠️ Unknown page state")
+            send_telegram("Unknown page state")
     except Exception as e:
-        send_telegram(f"❗ Error: {e}")
-        print(f"Error: {e}")
+        send_telegram("Error: " + str(e))
+        print("Error: " + str(e))
     finally:
         driver.quit()
 
+
 if __name__ == "__main__":
     main()
-```
-
----
-
-**Файл 2: `requirements.txt`**
-```
-selenium
-webdriver-manager
-requests
