@@ -40,13 +40,19 @@ def js_click(driver, element):
 
 def create_driver():
     options = Options()
-    options.add_argument("--headless")
+    options.add_argument("--headless=new")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--disable-gpu")
+    options.add_argument("--disable-software-rasterizer")
     options.add_argument("--window-size=1920,1080")
     options.add_argument("--disable-blink-features=AutomationControlled")
     options.add_argument("--disable-notifications")
+    options.add_argument("--disable-extensions")
+    options.add_argument("--disable-infobars")
+    options.add_argument("--remote-debugging-port=9222")
+    options.add_argument("--disable-setuid-sandbox")
+    options.add_argument("--single-process")
     options.add_argument(
         "user-agent=Mozilla/5.0 (X11; Linux x86_64) "
         "AppleWebKit/537.36 (KHTML, like Gecko) "
@@ -78,57 +84,57 @@ def accept_cookies(driver):
 def open_and_select_province(driver):
     print("Step 1: Province")
     driver.get(URL)
-    time.sleep(3)
+    time.sleep(5)
     accept_cookies(driver)
-    wait = WebDriverWait(driver, 20)
+    wait = WebDriverWait(driver, 30)
     Select(wait.until(EC.presence_of_element_located((By.ID, "form")))).select_by_value(PROVINCE_VALUE)
-    time.sleep(1)
+    time.sleep(2)
     js_click(driver, driver.find_element(By.ID, "btnAceptar"))
-    time.sleep(4)
+    time.sleep(5)
 
 
 def select_office_and_tramite(driver):
     print("Step 2: Office and tramite")
-    wait = WebDriverWait(driver, 20)
+    wait = WebDriverWait(driver, 30)
     Select(wait.until(EC.presence_of_element_located((By.ID, "sede")))).select_by_value(OFFICE_VALUE)
-    time.sleep(1)
+    time.sleep(2)
     Select(wait.until(EC.presence_of_element_located((By.NAME, TRAMITE_GROUP)))).select_by_value(TRAMITE_VALUE)
-    time.sleep(1)
+    time.sleep(2)
     js_click(driver, driver.find_element(By.ID, "btnAceptar"))
-    time.sleep(4)
+    time.sleep(5)
 
 
 def click_enter(driver):
     print("Step 3: Entrar")
-    wait = WebDriverWait(driver, 20)
+    wait = WebDriverWait(driver, 30)
     try:
         js_click(driver, wait.until(EC.presence_of_element_located((By.ID, "btnEntrar"))))
-        time.sleep(3)
+        time.sleep(4)
     except TimeoutException:
         print("btnEntrar not found")
 
 
 def fill_user_data(driver):
     print("Step 4: NIE and name")
-    wait = WebDriverWait(driver, 20)
+    wait = WebDriverWait(driver, 30)
     nie = wait.until(EC.presence_of_element_located((By.ID, "txtIdCitado")))
     nie.clear()
     nie.send_keys(USER_NIE)
-    time.sleep(0.5)
+    time.sleep(1)
     name = wait.until(EC.presence_of_element_located((By.ID, "txtDesCitado")))
     name.clear()
     name.send_keys(USER_NAME)
-    time.sleep(0.5)
+    time.sleep(1)
     js_click(driver, driver.find_element(By.ID, "btnEnviar"))
-    time.sleep(4)
+    time.sleep(5)
 
 
 def solicitar_cita(driver):
     print("Step 5: Solicitar Cita")
-    wait = WebDriverWait(driver, 20)
+    wait = WebDriverWait(driver, 30)
     try:
         js_click(driver, wait.until(EC.presence_of_element_located((By.ID, "btnEnviar"))))
-        time.sleep(4)
+        time.sleep(5)
     except TimeoutException:
         print("btnEnviar not found")
 
