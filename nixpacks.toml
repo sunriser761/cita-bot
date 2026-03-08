@@ -1,5 +1,0 @@
-[phases.setup]
-nixPkgs = ["google-chrome"]
-
-[phases.install]
-cmds = ["pip install -r requirements.txt"]
